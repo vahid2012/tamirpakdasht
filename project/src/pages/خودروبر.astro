@@ -1,0 +1,8 @@
+---
+import RoadsideServiceHub from '../components/RoadsideServiceHub.astro';
+import { getRoadsideService } from '../data/roadside';
+
+const service = getRoadsideService('خودروبر')!;
+---
+
+<RoadsideServiceHub service={service} />

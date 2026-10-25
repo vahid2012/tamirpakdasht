@@ -1,0 +1,8 @@
+---
+import ApplianceServiceHub from '../components/ApplianceServiceHub.astro';
+import { getApplianceService } from '../data/services';
+
+const service = getApplianceService('تعمیر-پکیج')!;
+---
+
+<ApplianceServiceHub service={service} />

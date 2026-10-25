@@ -1,0 +1,96 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import PhoneCTA from '../components/PhoneCTA.astro';
+import FAQ from '../components/FAQ.astro';
+import { roadsideServices } from '../data/roadside';
+
+const title = 'امداد خودرو در پاکدشت | یدک کش و مکانیک سیار ۲۴ ساعته';
+const description = 'امداد خودرو ۲۴ ساعته در پاکدشت، قرچک، ورامین، پیشوا و تهران. یدک کش، مکانیک سیار و خودروبر با مجوز رسمی. تماس: ۰۹۰۳۲۴۸۶۰۷۳';
+
+const faqItems = [
+  { q: 'امداد خودرو در پاکدشت چقدر طول می‌کشد؟', a: 'در پاکدشت میانگین زمان رسیدن ۱۵ تا ۲۰ دقیقه است و در شهرهای اطرال بین ۲۰ تا ۴۵ دقیقه.' },
+  { q: 'آیا امداد خودرو ۲۴ ساعته است؟', a: 'بله، تمام خدمات امداد خودرو شامل یدک کش، مکانیک سیار و خودروبر ۲۴ ساعته در تمام ایام سال ارائه می‌شود.' },
+  { q: 'آیا مجوز رسمی دارید؟', a: 'بله، ما دارای مجوز رسمی از کانون جهانگردی و اتومبیلرانی هستیم و مدیریت مجموعه بر عهده آقای خسروبیگی است.' },
+  { q: 'هزینه امداد خودرو چقدر است؟', a: 'هزینه بسته به نوع خدمات و مسافت متفاوت است و پیش از اعزام به صورت شفاف اعلام می‌شود.' },
+];
+
+const jsonLd = [
+  {
+    "@context": "https://schema.org",
+    "@type": "AutoRepair",
+    "name": "تعمیر پاکدشت — امداد خودرو",
+    "telephone": "09032486073",
+    "address": { "@type": "PostalAddress", "addressLocality": "پاکدشت", "addressCountry": "IR" },
+    "openingHours": "Mo-Su 00:00-23:59",
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": faqItems.map(item => ({
+      "@type": "Question",
+      "name": item.q,
+      "acceptedAnswer": { "@type": "Answer", "text": item.a }
+    }))
+  }
+];
+---
+
+<Layout title={title} description={description} jsonLd={jsonLd}>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <Breadcrumbs items={[{ name: 'امداد خودرو' }]} />
+
+    <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">امداد خودرو در پاکدشت و شهرهای اطراف</h1>
+    <p class="text-lg text-gray-600 leading-relaxed max-w-3xl mb-8">
+      خدمات امداد خودرو تعمیر پاکدشت با مدیریت آقای خسروبیگی و مجوز رسمی از کانون جهانگردی و اتومبیلرانی، خدمات یدک کش، مکانیک سیار و خودروبر را به صورت ۲۴ ساعته در پاکدشت، قرچک، ورامین، پیشوا و تهران ارائه می‌دهد. در صورت خرابی خودرو، با شماره ۰۹۰۳۲۴۸۶۰۷۳ تماس بگیرید.
+    </p>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 my-12">
+      {
+        roadsideServices.map((service) => (
+          <a href={`/${service.slug}`} class="group bg-white rounded-2xl border border-gray-200 p-6 hover:border-success-300 hover:shadow-lg transition-all">
+            <div class="w-12 h-12 bg-success-50 rounded-xl flex items-center justify-center mb-4 group-hover:bg-success-100 transition-colors">
+              <span class="text-success-600 text-2xl font-bold">{service.persianName.charAt(0)}</span>
+            </div>
+            <h2 class="text-lg font-bold text-gray-900 mb-2 group-hover:text-success-600 transition-colors">{service.persianName}</h2>
+            <p class="text-sm text-gray-600 leading-relaxed mb-4">{service.shortDesc}</p>
+            <span class="text-sm text-success-600 font-medium group-hover:text-success-700">مشاهده خدمات →</span>
+          </a>
+        ))
+      }
+    </div>
+
+    <section class="prose prose-rtl max-w-none">
+      <h2>خدمات امداد خودرو در پاکدشت</h2>
+      <p>
+        خرابی ناگهانی خودرو می‌تواند در هر لحظه و در هر مکانی رخ دهد و شما را در شرایطی دشوار قرار دهد. خدمات امداد خودرو تعمیر پاکدشت با تیمی از تکنسین‌های حرفه‌ای و ناوگان مجهز، آماده اعزام در کوتاه‌ترین زمان به محل شما است.
+      </p>
+      <p>
+        خدمات ما شامل یدک کش خودروهای سواری، شاسی‌بلند و وانت، مکانیک سیار برای رفع خرابی در محل، تعویض لاستیک پنچر، شارژ باتری، رساندن بنزین اضطراری و خودروبر برای حمل خودروهای تصادفی و انتقال بین شهری است.
+      </p>
+
+      <h2>مجوز و اعتبار</h2>
+      <p>
+        مجموعه تعمیر پاکدشت دارای مجوز رسمی از کانون جهانگردی و اتومبیلرانی است و مدیریت آن بر عهده آقای خسروبیگی می‌باشد. تمام خودروهای یدک‌کش و خودروبر ما بیمه‌شده هستند و ایمنی کامل خودرو شما را تضمین می‌کنند.
+      </p>
+
+      <h2>پوشش ۲۴ ساعته</h2>
+      <p>
+        خدمات امداد خودرو ما ۲۴ ساعته در تمام ایام سال ارائه می‌شود. چه در ساعات اوج ترافیک، چه در شب‌هنگام و چه در روزهای تعطیل، تیم ما آماده اعزام است. در صورت خرابی خودرو، کافی است با شماره <a href="tel:09032486073" dir="ltr">09032486073</a> تماس بگیرید.
+      </p>
+
+      <h2>مناطق تحت پوشش امداد خودرو</h2>
+      <ul>
+        <li><strong>پاکدشت</strong> — پوشش کامل ۲۴ ساعته</li>
+        <li><strong>قرچک</strong> — پوشش کامل ۲۴ ساعته</li>
+        <li><strong>ورامین</strong> — پوشش کامل ۲۴ ساعته</li>
+        <li><strong>پیشوا</strong> — پوشش کامل ۲۴ ساعته</li>
+        <li><strong>تهران</strong> — پوشش یدک کش، مکانیک سیار و خودروبر</li>
+      </ul>
+    </section>
+
+    <PhoneCTA title="خرابی خودرو؟ همین حالا تماس بگیرید" subtitle="امداد خودرو ۲۴ ساعته — مجوز رسمی از کانون جهانگردی" />
+
+    <FAQ items={faqItems} />
+  </div>
+</Layout>

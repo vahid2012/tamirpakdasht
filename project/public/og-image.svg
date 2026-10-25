@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1d4ed8"/>
+      <stop offset="100%" style="stop-color:#1e3a8a"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <text x="600" y="280" font-family="Tahoma, Arial, sans-serif" font-size="64" font-weight="bold" fill="white" text-anchor="middle" direction="rtl">تعمیر پاکدشت</text>
+  <text x="600" y="360" font-family="Tahoma, Arial, sans-serif" font-size="32" fill="#bfdbfe" text-anchor="middle" direction="rtl">تعمیر لوازم خانگی و امداد خودرو ۲۴ ساعته</text>
+  <text x="600" y="440" font-family="Tahoma, Arial, sans-serif" font-size="28" fill="#93c5fd" text-anchor="middle" direction="ltr">09032486073</text>
+  <text x="600" y="510" font-family="Tahoma, Arial, sans-serif" font-size="22" fill="#93c5fd" text-anchor="middle" direction="rtl">پاکدشت | قرچک | ورامین | پیشوا | تهران</text>
+</svg>

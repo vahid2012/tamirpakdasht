@@ -1,0 +1,47 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import { getCollection } from 'astro:content';
+
+const title = 'وبلاگ تعمیر پاکدشت | راهنمای تعمیر لوازم خانگی و امداد خودرو';
+const description = 'مقالات و راهنماهای تخصصی تعمیر لوازم خانگی و امداد خودرو در پاکدشت و شهرهای اطراف. راهنمای انتخاب تعمیرکار، هزینه‌ها و نکات نگهداری.';
+
+const posts = await getCollection('blog');
+const sortedPosts = posts.sort((a, b) => (b.data.pubDate?.valueOf() || 0) - (a.data.pubDate?.valueOf() || 0));
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Blog",
+  "name": "وبلاگ تعمیر پاکدشت",
+  "url": "https://tamirpakdasht.ir/وبلاگ",
+};
+---
+
+<Layout title={title} description={description} jsonLd={jsonLd}>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <Breadcrumbs items={[{ name: 'وبلاگ' }]} />
+
+    <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">وبلاگ تعمیر پاکدشت</h1>
+    <p class="text-lg text-gray-600 leading-relaxed max-w-3xl mb-12">
+      مقالات و راهنماهای تخصصی درباره تعمیر لوازم خانگی، امداد خودرو، نکات نگهداری و انتخاب تعمیرکار حرفه‌ای در پاکدشت و شهرهای اطراف.
+    </p>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      {
+        sortedPosts.map((post) => (
+          <a href={`/وبلاگ/${post.slug}`} class="group bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-lg transition-all">
+            <div class="aspect-video bg-gradient-to-l from-brand-500 to-brand-700 flex items-center justify-center">
+              <span class="text-white text-4xl font-bold">{post.data.title.charAt(0)}</span>
+            </div>
+            <div class="p-6">
+              <p class="text-xs text-gray-500 mb-2">{post.data.category}</p>
+              <h2 class="text-lg font-bold text-gray-900 mb-3 group-hover:text-brand-600 transition-colors">{post.data.title}</h2>
+              <p class="text-sm text-gray-600 leading-relaxed mb-4">{post.data.description}</p>
+              <span class="text-sm text-brand-600 font-medium group-hover:text-brand-700">ادامه مطلب →</span>
+            </div>
+          </a>
+        ))
+      }
+    </div>
+  </div>
+</Layout>

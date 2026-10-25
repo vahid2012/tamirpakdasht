@@ -1,0 +1,96 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import PhoneCTA from '../components/PhoneCTA.astro';
+import FAQ from '../components/FAQ.astro';
+import type { RoadsideService } from '../data/roadside';
+import { roadsideServices } from '../data/roadside';
+
+export interface Props {
+  service: RoadsideService;
+}
+
+const { service } = Astro.props as Props;
+
+const title = `${service.persianName} در پاکدشت | خدمات ۲۴ ساعته با مجوز رسمی`;
+const description = `${service.persianName} در پاکدشت، قرچک، ورامین، پیشوا و تهران با مجوز رسمی از کانون جهانگردی. خدمات ۲۴ ساعته. تماس: ۰۹۰۳۲۴۸۶۰۷۳`;
+
+const faqItems = service.faq;
+
+const jsonLd = [
+  {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    "name": `${service.persianName} در پاکدشت`,
+    "provider": {
+      "@type": "AutoRepair",
+      "name": "تعمیر پاکدشت",
+      "telephone": "09032486073",
+      "address": { "@type": "PostalAddress", "addressLocality": "پاکدشت", "addressCountry": "IR" }
+    },
+    "areaServed": service.cities.map((c) => ({ "@type": "City", "name": c })),
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": faqItems.map(item => ({
+      "@type": "Question",
+      "name": item.q,
+      "acceptedAnswer": { "@type": "Answer", "text": item.a }
+    }))
+  }
+];
+
+const siblingServices = roadsideServices.filter((s) => s.slug !== service.slug).slice(0, 3);
+---
+
+<Layout title={title} description={description} jsonLd={jsonLd}>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <Breadcrumbs items={[
+      { name: 'امداد خودرو', url: '/امداد-خودرو' },
+      { name: service.persianName },
+    ]} />
+
+    <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">{service.persianName} در پاکدشت با مجوز رسمی</h1>
+    <p class="text-lg text-gray-600 leading-relaxed max-w-3xl mb-8">{service.shortDesc} — مدیریت: آقای خسروبیگی — مجوز از کانون جهانگردی و اتومبیلرانی.</p>
+
+    <PhoneCTA title={`نیاز به ${service.persianName} دارید؟`} subtitle="خدمات ۲۴ ساعته — پوشش در تمام ایام سال" />
+
+    <div class="bg-success-50 border border-success-200 rounded-xl p-6 my-8">
+      <h2 class="font-bold text-success-800 mb-3">نشانه‌های اعتماد</h2>
+      <ul class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+        {service.trustSignals.map((signal) => (
+          <li class="flex items-center gap-2 text-sm text-success-700">
+            <svg class="w-5 h-5 text-success-600 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+            {signal}
+          </li>
+        ))}
+      </ul>
+    </div>
+
+    <section class="prose prose-rtl max-w-none my-12">
+      <div set:html={service.hubContent.replace(/\n\n/g, '</p><p>').split('\n').join('<br/>')} />
+    </section>
+
+    <h2 class="text-2xl font-bold text-gray-900 mb-6">{service.persianName} در شهرهای تحت پوشش</h2>
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-12">
+      {
+        service.cities.map((city) => (
+          <a href={`/${service.slug}-${city}`} class="group bg-white rounded-xl border border-gray-200 p-6 hover:border-success-300 hover:shadow-md transition-all text-center">
+            <h3 class="font-bold text-gray-900 mb-2 group-hover:text-success-600 transition-colors">{service.persianName} در {city}</h3>
+            <span class="text-sm text-success-600 font-medium group-hover:text-success-700">مشاهده →</span>
+          </a>
+        ))
+      }
+    </div>
+
+    <section class="prose prose-rtl max-w-none mb-12">
+      <h2>سایر خدمات امداد خودرو</h2>
+      <ul>
+        {siblingServices.map((s) => <li><a href={`/${s.slug}`}>{s.persianName}</a> — {s.shortDesc}</li>)}
+      </ul>
+    </section>
+
+    <FAQ items={faqItems} />
+  </div>
+</Layout>

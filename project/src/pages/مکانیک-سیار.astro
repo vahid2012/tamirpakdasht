@@ -1,0 +1,8 @@
+---
+import RoadsideServiceHub from '../components/RoadsideServiceHub.astro';
+import { getRoadsideService } from '../data/roadside';
+
+const service = getRoadsideService('مکانیک-سیار')!;
+---
+
+<RoadsideServiceHub service={service} />

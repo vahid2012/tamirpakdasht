@@ -1,0 +1,318 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import PhoneCTA from '../components/PhoneCTA.astro';
+import FAQ from '../components/FAQ.astro';
+import { services, getApplianceService } from '../data/services';
+import { roadsideServices, getRoadsideService } from '../data/roadside';
+import { locations } from '../data/locations';
+import { generateApplianceContent, generateRoadsideContent, generateRoadsideTehranContent } from '../data/contentGenerator';
+
+export function getStaticPaths() {
+  const paths: Array<{
+    params: { service: string; city: string };
+    props: {
+      type: 'appliance' | 'roadside';
+      serviceSlug: string;
+      citySlug: string;
+      serviceName: string;
+      cityName: string;
+    };
+  }> = [];
+
+  // Appliance services × 4 cities
+  for (const service of services) {
+    for (const loc of locations) {
+      paths.push({
+        params: { service: service.slug, city: loc.slug },
+        props: {
+          type: 'appliance' as const,
+          serviceSlug: service.slug,
+          citySlug: loc.slug,
+          serviceName: service.persianName,
+          cityName: loc.name,
+        },
+      });
+    }
+  }
+
+  // Roadside services × their valid cities
+  for (const service of roadsideServices) {
+    for (const city of service.cities) {
+      paths.push({
+        params: { service: service.slug, city: city },
+        props: {
+          type: 'roadside' as const,
+          serviceSlug: service.slug,
+          citySlug: city,
+          serviceName: service.persianName,
+          cityName: city,
+        },
+      });
+    }
+  }
+
+  return paths;
+}
+
+interface Props {
+  type: 'appliance' | 'roadside';
+  serviceSlug: string;
+  citySlug: string;
+  serviceName: string;
+  cityName: string;
+}
+
+const { type, serviceSlug, citySlug, serviceName, cityName } = Astro.props as Props;
+
+const applianceService = type === 'appliance' ? getApplianceService(serviceSlug)! : null;
+const roadsideService = type === 'roadside' ? getRoadsideService(serviceSlug)! : null;
+const location = locations.find((l) => l.slug === citySlug);
+
+let snippet: string;
+let body: string;
+let faqItems: Array<{ q: string; a: string }>;
+let neighborhoods: string;
+let routeInfo: string;
+
+if (type === 'appliance' && applianceService && location) {
+  const content = generateApplianceContent(applianceService, location);
+  snippet = content.snippet;
+  body = content.body;
+  faqItems = content.faq;
+  neighborhoods = content.neighborhoods;
+  routeInfo = content.routeInfo;
+} else if (type === 'roadside' && roadsideService) {
+  if (location) {
+    const content = generateRoadsideContent(roadsideService, location);
+    snippet = content.snippet;
+    body = content.body;
+    faqItems = content.faq;
+    neighborhoods = content.neighborhoods;
+    routeInfo = content.routeInfo;
+  } else {
+    // Tehran
+    const content = generateRoadsideTehranContent(roadsideService);
+    snippet = content.snippet;
+    body = content.body;
+    faqItems = content.faq;
+    neighborhoods = content.neighborhoods;
+    routeInfo = content.routeInfo;
+  }
+} else {
+  snippet = '';
+  body = '';
+  faqItems = [];
+  neighborhoods = '';
+  routeInfo = '';
+}
+
+const title = `${serviceName} در ${cityName} با گارانتی | تعمیر پاکدشت`;
+const description = snippet.length > 155 ? snippet.slice(0, 152) + '...' : snippet;
+
+// Build breadcrumbs
+const breadcrumbItems = type === 'appliance'
+  ? [
+      { name: 'تعمیر لوازم خانگی', url: '/تعمیر-لوازم-خانگی' },
+      { name: serviceName, url: `/${serviceSlug}` },
+      { name: `${serviceName} در ${cityName}` },
+    ]
+  : [
+      { name: 'امداد خودرو', url: '/امداد-خودرو' },
+      { name: serviceName, url: `/${serviceSlug}` },
+      { name: `${serviceName} در ${cityName}` },
+    ];
+
+// JSON-LD
+const businessType = type === 'appliance' ? 'LocalBusiness' : 'AutoRepair';
+const jsonLd = [
+  {
+    "@context": "https://schema.org",
+    "@type": businessType,
+    "name": `تعمیر پاکدشت — ${serviceName} در ${cityName}`,
+    "telephone": "09032486073",
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": cityName,
+      "addressRegion": "تهران",
+      "addressCountry": "IR"
+    },
+    "openingHours": "Mo-Su 00:00-23:59",
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    "name": `${serviceName} در ${cityName}`,
+    "provider": {
+      "@type": businessType,
+      "name": "تعمیر پاکدشت",
+      "telephone": "09032486073",
+    },
+    "areaServed": { "@type": "City", "name": cityName },
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": faqItems.map(item => ({
+      "@type": "Question",
+      "name": item.q,
+      "acceptedAnswer": { "@type": "Answer", "text": item.a }
+    }))
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "خانه", "item": "https://tamirpakdasht.ir/" },
+      ...breadcrumbItems.map((item, i) => ({
+        "@type": "ListItem",
+        "position": i + 2,
+        "name": item.name,
+        ...(item.url ? { "item": `https://tamirpakdasht.ir${item.url}` } : {})
+      }))
+    ]
+  }
+];
+
+// Sibling cities for internal linking (same service, different cities)
+let siblingCities: Array<{ name: string; slug: string }> = [];
+if (type === 'appliance') {
+  siblingCities = locations
+    .filter((l) => l.slug !== citySlug)
+    .map((l) => ({ name: l.name, slug: l.slug }));
+} else if (roadsideService) {
+  siblingCities = roadsideService.cities
+    .filter((c) => c !== citySlug)
+    .map((c) => ({ name: c, slug: c }));
+}
+
+// Other services in same city for internal linking
+let otherServicesInCity: Array<{ name: string; slug: string }> = [];
+if (type === 'appliance') {
+  otherServicesInCity = services
+    .filter((s) => s.slug !== serviceSlug)
+    .map((s) => ({ name: s.persianName, slug: s.slug }));
+} else {
+  // Other roadside services that cover this city
+  otherServicesInCity = roadsideServices
+    .filter((s) => s.slug !== serviceSlug && s.cities.includes(citySlug))
+    .map((s) => ({ name: s.persianName, slug: s.slug }));
+}
+
+// Blog links
+const blogLinks = [
+  { slug: 'انتخاب-تعمیرکار-یخچال-پاکدشت', title: 'راهنمای انتخاب تعمیرکار یخچال در پاکدشت' },
+  { slug: 'راهنمای-یدک-کش-در-ورامین', title: 'راهنمای یدک کش در ورامین' },
+  { slug: 'هزینه-تعمیر-لباسشویی-قرچک', title: 'هزینه تعمیر لباسشویی در قرچک' },
+];
+---
+
+<Layout title={title} description={description} jsonLd={jsonLd}>
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <Breadcrumbs items={breadcrumbItems} />
+
+    <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 mb-6 leading-tight">
+      {serviceName} در {cityName} با گارانتی
+    </h1>
+
+    <p class="text-lg text-gray-700 leading-relaxed mb-8 bg-brand-50 border-r-4 border-brand-500 p-4 rounded-lg">
+      {snippet}
+    </p>
+
+    <PhoneCTA
+      title={`نیاز به ${serviceName} در ${cityName} دارید؟`}
+      subtitle="تکنسین در کوتاه‌ترین زمان به محل شما می‌رسد — خدمات ۲۴ ساعته"
+    />
+
+    {type === 'appliance' && applianceService && (
+      <section class="bg-white rounded-2xl border border-gray-200 p-6 my-8">
+        <h2 class="font-bold text-gray-900 mb-4">برندهای تحت پوشش در {cityName}</h2>
+        <div class="flex flex-wrap gap-2">
+          {applianceService.brands.map((brand) => (
+            <span class="text-sm bg-brand-50 text-brand-700 px-3 py-1.5 rounded-lg font-medium">{brand}</span>
+          ))}
+        </div>
+      </section>
+    )}
+
+    {type === 'roadside' && roadsideService && (
+      <div class="bg-success-50 border border-success-200 rounded-xl p-6 my-8">
+        <h2 class="font-bold text-success-800 mb-3">نشانه‌های اعتماد</h2>
+        <ul class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          {roadsideService.trustSignals.map((signal) => (
+            <li class="flex items-center gap-2 text-sm text-success-700">
+              <svg class="w-5 h-5 text-success-600 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+              {signal}
+            </li>
+          ))}
+        </ul>
+      </div>
+    )}
+
+    <article class="prose prose-rtl max-w-none my-8">
+      {body.split('\n').filter((line) => line.trim()).map((line) => {
+        if (line.startsWith('## ')) {
+          return <h2>{line.replace('## ', '')}</h2>;
+        } else if (line.startsWith('# ')) {
+          return <h2>{line.replace('# ', '')}</h2>;
+        } else {
+          return <p set:html={line} />;
+        }
+      })}
+
+      <h2>محلات تحت پوشش در {cityName}</h2>
+      <p>
+        خدمات {serviceName} در تمام محلات {cityName} ارائه می‌شود، از جمله: {neighborhoods}.
+      </p>
+
+      <h2>زمان رسیدن و دسترسی در {cityName}</h2>
+      <p>{routeInfo}</p>
+    </article>
+
+    <PhoneCTA title="همین حالا تماس بگیرید" subtitle="مدیریت: آقای خسروبیگی — پوشش ۲۴ ساعته" />
+
+    {/* Internal links — sibling cities */}
+    {siblingCities.length > 0 && (
+      <section class="bg-white rounded-2xl border border-gray-200 p-6 my-8">
+        <h2 class="text-xl font-bold text-gray-900 mb-4">{serviceName} در شهرهای دیگر</h2>
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          {siblingCities.map((city) => (
+            <a href={`/${serviceSlug}-${city.slug}`} class="text-sm text-brand-600 hover:text-brand-700 font-medium hover:underline">
+              {serviceName} در {city.name}
+            </a>
+          ))}
+        </div>
+      </section>
+    )}
+
+    {/* Internal links — other services in same city */}
+    {otherServicesInCity.length > 0 && (
+      <section class="bg-white rounded-2xl border border-gray-200 p-6 my-8">
+        <h2 class="text-xl font-bold text-gray-900 mb-4">سایر خدمات در {cityName}</h2>
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          {otherServicesInCity.map((svc) => (
+            <a href={`/${svc.slug}-${citySlug}`} class="text-sm text-brand-600 hover:text-brand-700 font-medium hover:underline">
+              {svc.name} در {cityName}
+            </a>
+          ))}
+        </div>
+      </section>
+    )}
+
+    {/* Internal links — blog posts */}
+    <section class="bg-white rounded-2xl border border-gray-200 p-6 my-8">
+      <h2 class="text-xl font-bold text-gray-900 mb-4">مقالات مرتبط</h2>
+      <ul class="space-y-2">
+        {blogLinks.map((post) => (
+          <li>
+            <a href={`/وبلاگ/${post.slug}`} class="text-sm text-brand-600 hover:text-brand-700 font-medium hover:underline">
+              {post.title}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <FAQ items={faqItems} />
+  </div>
+</Layout>

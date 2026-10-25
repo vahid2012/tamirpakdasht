@@ -1,0 +1,105 @@
+---
+import { services } from '../data/services';
+import { roadsideServices } from '../data/roadside';
+import { locations } from '../data/locations';
+import { getCollection } from 'astro:content';
+
+const posts = await getCollection('blog');
+
+// Build the complete list of expected URLs
+const expectedUrls: Array<{ url: string; type: string }> = [];
+
+// Level 1 — Hubs
+expectedUrls.push({ url: '/', type: 'Level 1 - Homepage' });
+expectedUrls.push({ url: '/تعمیر-لوازم-خانگی', type: 'Level 1 - Hub' });
+expectedUrls.push({ url: '/امداد-خودرو', type: 'Level 1 - Hub' });
+expectedUrls.push({ url: '/وبلاگ', type: 'Level 1 - Blog Index' });
+
+// Level 2 — Service Hubs
+for (const service of services) {
+  expectedUrls.push({ url: `/${service.slug}`, type: 'Level 2 - Appliance Hub' });
+}
+for (const service of roadsideServices) {
+  expectedUrls.push({ url: `/${service.slug}`, type: 'Level 2 - Roadside Hub' });
+}
+
+// Level 3 — Appliance Service + City pages
+let applianceCount = 0;
+for (const service of services) {
+  for (const loc of locations) {
+    expectedUrls.push({ url: `/${service.slug}-${loc.slug}`, type: 'Level 3 - Appliance+City' });
+    applianceCount++;
+  }
+}
+
+// Level 3 — Roadside Service + City pages
+let roadsideCount = 0;
+for (const service of roadsideServices) {
+  for (const city of service.cities) {
+    expectedUrls.push({ url: `/${service.slug}-${city}`, type: 'Level 3 - Roadside+City' });
+    roadsideCount++;
+  }
+}
+
+// Level 4 — Blog posts
+for (const post of posts) {
+  expectedUrls.push({ url: `/وبلاگ/${post.slug}`, type: 'Level 4 - Blog Post' });
+}
+
+const totalCount = expectedUrls.length;
+---
+
+<!doctype html>
+<html lang="fa" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Sitemap Diagnostic — Tamirpakdasht.ir</title>
+  </head>
+  <body class="font-sans bg-gray-50 p-8" style="font-family: system-ui, sans-serif; direction: rtl;">
+    <h1 class="text-2xl font-bold mb-2">Sitemap Diagnostic Page</h1>
+    <p class="text-gray-600 mb-6">این صفحه ابزار QA است و در sitemap قرار ندارد (noindex).</p>
+
+    <div class="bg-white rounded-lg border p-6 mb-6">
+      <h2 class="text-lg font-bold mb-4">خلاصه</h2>
+      <table class="w-full text-sm">
+        <tbody>
+          <tr class="border-b"><td class="py-2 font-medium">Level 1 — Hub Pages</td><td class="py-2">4</td></tr>
+          <tr class="border-b"><td class="py-2 font-medium">Level 2 — Appliance Service Hubs</td><td class="py-2">{services.length}</td></tr>
+          <tr class="border-b"><td class="py-2 font-medium">Level 2 — Roadside Service Hubs</td><td class="py-2">{roadsideServices.length}</td></tr>
+          <tr class="border-b"><td class="py-2 font-medium">Level 3 — Appliance + City Pages</td><td class="py-2">{applianceCount}</td></tr>
+          <tr class="border-b"><td class="py-2 font-medium">Level 3 — Roadside + City Pages</td><td class="py-2">{roadsideCount}</td></tr>
+          <tr class="border-b"><td class="py-2 font-medium">Level 4 — Blog Posts</td><td class="py-2">{posts.length}</td></tr>
+          <tr class="bg-brand-50 font-bold"><td class="py-2">Total Expected URLs</td><td class="py-2">{totalCount}</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="bg-white rounded-lg border p-6">
+      <h2 class="text-lg font-bold mb-4">Complete URL List ({totalCount} URLs)</h2>
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="border-b text-right">
+            <th class="py-2 px-2">#</th>
+            <th class="py-2 px-2">Type</th>
+            <th class="py-2 px-2">URL</th>
+          </tr>
+        </thead>
+        <tbody>
+          {expectedUrls.map((entry, i) => (
+            <tr class="border-b hover:bg-gray-50">
+              <td class="py-2 px-2 text-gray-400">{i + 1}</td>
+              <td class="py-2 px-2 text-gray-600 text-xs">{entry.type}</td>
+              <td class="py-2 px-2 font-mono text-xs" dir="ltr">{entry.url}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="mt-6 text-sm text-gray-500">
+      <p>After build, verify that dist/sitemap-0.xml contains exactly {totalCount} URL entries.</p>
+    </div>
+  </body>
+</html>

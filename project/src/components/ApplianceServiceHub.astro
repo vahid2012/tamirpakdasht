@@ -1,0 +1,110 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import PhoneCTA from '../components/PhoneCTA.astro';
+import FAQ from '../components/FAQ.astro';
+import type { ApplianceService } from '../data/services';
+import { services, applianceCities } from '../data/services';
+import { locations } from '../data/locations';
+
+export interface Props {
+  service: ApplianceService;
+}
+
+const { service } = Astro.props as Props;
+
+const title = `${service.persianName} در پاکدشت | تعمیر همه برندها با گارانتی`;
+const description = `${service.persianName} تخصصی در پاکدشت، قرچک، ورامین و پیشوا. تعمیر تمام برندها با گارانتی کتبی ۶ تا ۱۲ ماه. تماس: ۰۹۰۳۲۴۸۶۰۷۳`;
+
+const faqItems = service.faq;
+
+const jsonLd = [
+  {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    "name": `${service.persianName} در پاکدشت`,
+    "provider": {
+      "@type": "LocalBusiness",
+      "name": "تعمیر پاکدشت",
+      "telephone": "09032486073",
+      "address": { "@type": "PostalAddress", "addressLocality": "پاکدشت", "addressCountry": "IR" }
+    },
+    "areaServed": applianceCities.map((c) => ({ "@type": "City", "name": c })),
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": faqItems.map(item => ({
+      "@type": "Question",
+      "name": item.q,
+      "acceptedAnswer": { "@type": "Answer", "text": item.a }
+    }))
+  }
+];
+
+// Get sibling services for cross-linking
+const siblingServices = services.filter((s) => s.slug !== service.slug).slice(0, 3);
+---
+
+<Layout title={title} description={description} jsonLd={jsonLd}>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <Breadcrumbs items={[
+      { name: 'تعمیر لوازم خانگی', url: '/تعمیر-لوازم-خانگی' },
+      { name: service.persianName },
+    ]} />
+
+    <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">{service.persianName} در پاکدشت با گارانتی</h1>
+    <p class="text-lg text-gray-600 leading-relaxed max-w-3xl mb-8">{service.shortDesc} — خدمات تخصصی در پاکدشت، قرچک، ورامین و پیشوا با گارانتی کتبی.</p>
+
+    <PhoneCTA title={`نیاز به ${service.persianName} دارید؟`} subtitle="تکنسین در کوتاه‌ترین زمان به محل شما می‌رسد" />
+
+    <section class="grid grid-cols-1 lg:grid-cols-3 gap-8 my-12">
+      <div class="lg:col-span-2 prose prose-rtl max-w-none">
+        <div set:html={service.hubContent.replace(/\n\n/g, '</p><p>').split('\n').join('<br/>')} />
+      </div>
+      <aside class="space-y-6">
+        <div class="bg-white rounded-2xl border border-gray-200 p-6">
+          <h2 class="font-bold text-gray-900 mb-4">برندهای تحت پوشش</h2>
+          <div class="flex flex-wrap gap-2">
+            {service.brands.map((brand) => (
+              <span class="text-sm bg-brand-50 text-brand-700 px-3 py-1.5 rounded-lg font-medium">{brand}</span>
+            ))}
+          </div>
+        </div>
+        <div class="bg-white rounded-2xl border border-gray-200 p-6">
+          <h2 class="font-bold text-gray-900 mb-4">مشکلات شایع</h2>
+          <ul class="space-y-2">
+            {service.commonIssues.map((issue) => (
+              <li class="flex items-center gap-2 text-sm text-gray-600">
+                <svg class="w-4 h-4 text-warning-500 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.515 2.625H3.72c-1.345 0-2.188-1.458-1.515-2.625L8.485 2.495z"/></svg>
+                {issue}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </aside>
+    </section>
+
+    <h2 class="text-2xl font-bold text-gray-900 mb-6">{service.persianName} در شهرهای تحت پوشش</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
+      {
+        locations.map((loc) => (
+          <a href={`/${service.slug}-${loc.slug}`} class="group bg-white rounded-xl border border-gray-200 p-6 hover:border-brand-300 hover:shadow-md transition-all">
+            <h3 class="font-bold text-gray-900 mb-2 group-hover:text-brand-600 transition-colors">{service.persianName} در {loc.name}</h3>
+            <p class="text-xs text-gray-500 mb-3">{loc.neighborhoods.length} محله تحت پوشش</p>
+            <span class="text-sm text-brand-600 font-medium group-hover:text-brand-700">مشاهده →</span>
+          </a>
+        ))
+      }
+    </div>
+
+    <section class="prose prose-rtl max-w-none mb-12">
+      <h2>سایر خدمات تعمیر لوازم خانگی</h2>
+      <ul>
+        {siblingServices.map((s) => <li><a href={`/${s.slug}`}>{s.persianName}</a> — {s.shortDesc}</li>)}
+      </ul>
+    </section>
+
+    <FAQ items={faqItems} />
+  </div>
+</Layout>

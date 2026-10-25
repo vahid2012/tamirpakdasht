@@ -1,0 +1,115 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import PhoneCTA from '../components/PhoneCTA.astro';
+import FAQ from '../components/FAQ.astro';
+import { services } from '../data/services';
+import { locations } from '../data/locations';
+
+const title = 'تعمیر لوازم خانگی در پاکدشت | تعمیر همه برندها با گارانتی';
+const description = 'تعمیر تخصصی لوازم خانگی در پاکدشت، قرچک، ورامین و پیشوا. تعمیر یخچال، لباسشویی، کولر گازی، پکیج و اجاق گاز با گارانتی. تماس: ۰۹۰۳۲۴۸۶۰۷۳';
+
+const faqItems = [
+  { q: 'تعمیر لوازم خانگی در پاکدشت چقدر طول می‌کشد؟', a: 'بسته به نوع خرابی، اکثر تعمیرات در همان روز و در محل شما انجام می‌شود. تکنسین در میانگین ۲۰ تا ۳۰ دقیقه به محل می‌رسد.' },
+  { q: 'کدام برندها را تعمیر می‌کنید؟', a: 'ما تمام برندهای ایرانی و خارجی از جمله اسنوا، پاکشوما، الجی، سامسونگ، بوش، دوو، هایر و امرسان را تعمیر می‌کنیم.' },
+  { q: 'آیا تعمیر لوازم خانگی گارانتی دارد؟', a: 'بله، تمام قطعات نصب شده و خدمات تعمیر شامل گارانتی کتبی از ۶ ماه تا ۱۲ ماه می‌شود.' },
+  { q: 'هزینه عیب‌یابی چقدر است؟', a: 'عیب‌یابی اولیه رایگان است و تنها در صورت تأیید شما و انجام تعمیر، هزینه قطعه و اجرت دریافت می‌شود.' },
+];
+
+const jsonLd = [
+  {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    "name": "تعمیر پاکدشت — تعمیر لوازم خانگی",
+    "telephone": "09032486073",
+    "address": { "@type": "PostalAddress", "addressLocality": "پاکدشت", "addressCountry": "IR" },
+    "openingHours": "Mo-Su 00:00-23:59",
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": faqItems.map(item => ({
+      "@type": "Question",
+      "name": item.q,
+      "acceptedAnswer": { "@type": "Answer", "text": item.a }
+    }))
+  }
+];
+---
+
+<Layout title={title} description={description} jsonLd={jsonLd}>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <Breadcrumbs items={[{ name: 'تعمیر لوازم خانگی' }]} />
+
+    <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">تعمیر لوازم خانگی در پاکدشت و شهرهای اطراف</h1>
+    <p class="text-lg text-gray-600 leading-relaxed max-w-3xl mb-8">
+      مرکز تخصصی تعمیر لوازم خانگی تعمیر پاکدشت با بیش از ۱۵ سال تجربه و تیم تکنسین‌های مجرب، خدمات تعمیر یخچال، لباسشویی، کولر گازی، پکیج و اجاق گاز را در تمام برندهای ایرانی و خارجی با گارانتی کتبی ارائه می‌دهد. خدمات ما در پاکدشت، قرچک، ورامین و پیشوا با پوشش ۲۴ ساعته ارائه می‌شود.
+    </p>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 my-12">
+      {
+        services.map((service) => (
+          <a href={`/${service.slug}`} class="group bg-white rounded-2xl border border-gray-200 p-6 hover:border-brand-300 hover:shadow-lg transition-all">
+            <div class="w-12 h-12 bg-brand-50 rounded-xl flex items-center justify-center mb-4 group-hover:bg-brand-100 transition-colors">
+              <span class="text-brand-600 text-2xl font-bold">{service.persianName.charAt(0)}</span>
+            </div>
+            <h2 class="text-lg font-bold text-gray-900 mb-2 group-hover:text-brand-600 transition-colors">{service.persianName}</h2>
+            <p class="text-sm text-gray-600 leading-relaxed mb-4">{service.shortDesc}</p>
+            <div class="flex flex-wrap gap-1 mb-4">
+              {service.brands.slice(0, 4).map((brand) => (
+                <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">{brand}</span>
+              ))}
+              <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">...</span>
+            </div>
+            <span class="text-sm text-brand-600 font-medium group-hover:text-brand-700">مشاهده خدمات →</span>
+          </a>
+        ))
+      }
+    </div>
+
+    <section class="prose prose-rtl max-w-none">
+      <h2>خدمات تعمیر لوازم خانگی در پاکدشت</h2>
+      <p>
+        تعمیر پاکدشت با مدیریت آقای خسروبیگی و تیمی از تکنسین‌های متخصص و آموزش‌دیده، مرکز معتبری در زمینه تعمیر لوازم خانگی در منطقه پاکدشت است. ما با استفاده از تجهیزات عیب‌یاب پیشرفته و قطعات اصل و شرکتی، تعمیر انواع لوازم خانگی را به صورت اصولی و با گارانتی کتبی انجام می‌دهیم.
+      </p>
+      <p>
+        خدمات تعمیر لوازم خانگی ما شامل تعمیر یخچال فریزر، ماشین لباسشویی، کولر گازی، پکیج دیواری و اجاق گاز در تمام برندهای ایرانی و خارجی است. هر یک از این لوازم دارای ساختار فنی خاصی هستند و تکنسین‌های ما با دانش تخصصی هر برند، تعمیر را به صورت استاندارد انجام می‌دهند.
+      </p>
+      <p>
+        برندهایی که در تعمیر آن‌ها تخصص داریم شامل اسنوا، پاکشوما، الجی، سامسونگ، بوش، دوو، هایر و امرسان می‌شود. برای هر برند کاتالوگ فنی به‌روز در اختیار داریم و تعمیرات با استفاده از قطعات اصل و شرکتی انجام می‌شود.
+      </p>
+
+      <h2>مناطق تحت پوشش تعمیر لوازم خانگی</h2>
+      <p>
+        خدمات تعمیر لوازم خانگی ما در شهرهای زیر ارائه می‌شود:
+      </p>
+      <ul>
+        {
+          locations.map((loc) => (
+            <li><strong>{loc.name}</strong> — پوشش تمام محلات از جمله {loc.neighborhoods.slice(0, 4).join('، ')} و...</li>
+          ))
+        }
+      </ul>
+
+      <h2>چرا تعمیر پاکدشت؟</h2>
+      <ul>
+        <li>بیش از ۱۵ سال تجربه در تعمیر لوازم خانگی</li>
+        <li>تکنسین‌های متخصص و آموزش‌دیده</li>
+        <li>استفاده از قطعات اصل و شرکتی</li>
+        <li>گارانتی کتبی از ۶ ماه تا ۱۲ ماه</li>
+        <li>خدمات اضطراری ۲۴ ساعته</li>
+        <li>عیب‌یابی رایگان در محل</li>
+        <li>هزینه‌های شفاف و منصفانه</li>
+      </ul>
+
+      <h2>مراحل درخواست تعمیر لوازم خانگی</h2>
+      <p>
+        برای درخواست تعمیر، کافی است با شماره <a href="tel:09032486073" dir="ltr">09032486073</a> تماس بگیرید. مشکل شما ثبت شده و نزدیک‌ترین تکنسین به محل شما اعزام می‌شود. تکنسین پس از رسیدن، دستگاه را عیب‌یابی کرده و هزینه تقریبی را اعلام می‌کند. پس از تأیید شما، تعمیر با قطعات اصل انجام می‌شود و گارانتی کتبی به شما تحویل داده می‌شود.
+      </p>
+    </section>
+
+    <PhoneCTA title="برای تعمیر لوازم خانگی تماس بگیرید" subtitle="تکنسین در کوتاه‌ترین زمان به محل شما می‌رسد" />
+
+    <FAQ items={faqItems} />
+  </div>
+</Layout>
